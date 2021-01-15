@@ -29,7 +29,7 @@ n1nyal./ny=,1,1
 .til1lata./ll=,3,1
 
 Note: Libhnj uses modified patterns by preparing substrings.pl.
-Unfortunatelly, now the conversion step can generate bad non-standard
+Unfortunately, now the conversion step can generate bad non-standard
 patterns (non-standard -> standard pattern conversion), so using
 narrow boundaries may be better for recent Libhnj. For example,
 substrings.pl generates a few bad patterns for Hungarian hyphenation
@@ -96,7 +96,7 @@ Dictionary developing
 There hasn't been extended PatGen pattern generator for non-standard
 hyphenation patterns, yet.
 
-Fortunatelly, non-standard hyphenation points are forbidden in the PatGen
+Fortunately, non-standard hyphenation points are forbidden in the PatGen
 generated hyphenation patterns, so with a little patch can be develop
 non-standard hyphenation patterns also in this case.
 
