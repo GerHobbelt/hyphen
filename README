@@ -90,7 +90,7 @@ First line contains the character encoding (ISO8859-x, UTF-8).
 Possible options in the following lines:
 
 LEFTHYPHENMIN num          minimal hyphenation distance from the left word end
-RIGHTHYPHENMIN num         minimal hyphation distance from the right word end
+RIGHTHYPHENMIN num         minimal hyphenation distance from the right word end
 COMPOUNDLEFTHYPHENMIN num  min. hyph. dist. from the left compound word boundary
 COMPOUNDRIGHTHYPHENMIN num min. hyph. dist. from the right comp. word boundary
 
@@ -106,7 +106,7 @@ will be the default 2 under the hyphenation (for backward compatibility).
 Comments
 
 Use percent sign at the beginning of the lines to add comments to your
-hpyhenation patterns (after the character encoding in the first line):
+hyphenation patterns (after the character encoding in the first line):
 
 % comment
 
