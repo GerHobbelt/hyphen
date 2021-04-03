@@ -103,6 +103,6 @@ László Németh: Automatic non-standard hyphenation in OpenOffice.org,
 TUGboat (27), 2006. No. 2., http://hunspell.sourceforge.net/tb87nemeth.pdf
 
 [2] There is the C version of pattern converter "substrings.c"
-in the distribution written by Nanning Buitenhuis. Unfortunatelly,
+in the distribution written by Nanning Buitenhuis. Unfortunately,
 this version hasn't handled the non standard extension of the
 algorithm, yet.
