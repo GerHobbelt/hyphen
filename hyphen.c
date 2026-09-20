@@ -359,6 +359,8 @@ void hnj_hyphen_load_line(char * buf, HyphenDict * dict, HashTab * hashtab) {
 #endif
 	  found = hnj_hash_lookup (hashtab, word);
 	  state_num = hnj_get_state (dict, hashtab, word);
+	  if (dict->states[state_num].match) hnj_free (dict->states[state_num].match);
+	  if (dict->states[state_num].repl) hnj_free (dict->states[state_num].repl);
 	  dict->states[state_num].match = hnj_strdup (pattern + i);
 	  dict->states[state_num].repl = repl;
 	  dict->states[state_num].replindex = replindex;
@@ -759,7 +761,7 @@ int hnj_hyphen_lhmin(int utf8, const char *word, int word_size, char * hyphens,
     /* ignore numbers */
     for (j = 0; word[j] <= '9' && word[j] >= '0'; j++) i--;
 
-    for (j = 0; i < lhmin && word[j] != '\0'; i++) do {
+    for (j = 0; i < lhmin && j < word_size && word[j] != '\0'; i++) do {
       /* check length of the non-standard part */
       if (*rep && *pos && *cut && (*rep)[j]) {
         char * rh = strchr((*rep)[j], '=');
@@ -778,7 +780,7 @@ int hnj_hyphen_lhmin(int utf8, const char *word, int word_size, char * hyphens,
        if (utf8 && ((unsigned char) word[j] == 0xEF) && ((unsigned char) word[j + 1] == 0xAC))  {
          i += hnj_ligature(word[j + 2]);
        }
-    } while (utf8 && (word[j] & 0xc0) == 0x80);
+    } while (j < word_size && utf8 && (word[j] & 0xc0) == 0x80);
     return 0;
 }
 
@@ -1029,8 +1031,8 @@ int hnj_hyphen_hyph_(HyphenDict *dict, const char *word, int word_size,
             }
             int sub_size = i - begin + 1 + hyph;
             if (sub_size >= word_size) sub_size = word_size - 1;
-            if ((size_t)sub_size + begin + 1 > prep_word_size)
-                sub_size = (int)(prep_word_size - begin - 1);
+            if ((size_t)sub_size + begin + 2 > prep_word_size)
+                sub_size = (int)(prep_word_size - begin - 2);
             if (sub_size < 1) sub_size = 1;
             hnj_hyphen_hyph_(dict, prep_word + begin + 1, sub_size,
                 hyphens2, &rep2, &pos2, &cut2, clhmin,
@@ -1109,7 +1111,7 @@ int hnj_hyphen_norm(const char *word, int word_size, char * hyphens,
         k = i - l + 1;
         l = k + (*cut)[i];
         (*cut)[j] = 0;        
-        for (; k < l; k++) {
+        for (; k < l && k < word_size; k++) {
             if ((((unsigned char) word[k]) >> 6) != 2) (*cut)[j]++;
         }
         (*rep)[j] = (*rep)[i];
