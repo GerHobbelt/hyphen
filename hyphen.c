@@ -275,6 +275,9 @@ void hnj_hyphen_load_line(char * buf, HyphenDict * dict, HashTab * hashtab) {
 	  } else if (strncmp(buf, "NOHYPHEN", 8) == 0) {
 	    char * space = buf + 8;
 	    while (*space != '\0' && (*space == ' ' || *space == '\t')) space++;
+	    if (dict->nohyphen) hnj_free(dict->nohyphen);
+	    dict->nohyphen = NULL;
+	    dict->nohyphenl = 0;
 	    if (*space != '\0') dict->nohyphen = hnj_strdup(space);
 	    if (dict->nohyphen) {
 	        char * nhe = dict->nohyphen + strlen(dict->nohyphen) - 1;
@@ -679,7 +682,7 @@ int hnj_hyphen_hyphenate (HyphenDict *dict,
 #endif
 	  /* This is a linear search because I tried a binary search and
 	     found it to be just a teeny bit slower. */
-	  for (k = 0; match[k]; k++)
+	  for (k = (offset < 0 ? -offset : 0); match[k]; k++)
 	    if (hyphens[offset + k] < match[k])
 	      hyphens[offset + k] = match[k];
 	}
@@ -792,7 +795,10 @@ int hnj_hyphen_rhmin(int utf8, const char *word, int word_size, char * hyphens,
       /* check length of the non-standard part */
       if (*rep && *pos && *cut && (*rep)[j]) {
         char * rh = strchr((*rep)[j], '=');
-        if (rh && (hnj_hyphen_strnlen(word + j - (*pos)[j] + (*cut)[j] + 1, 100, utf8) +
+        int start = j - (*pos)[j] + (*cut)[j] + 1;
+        int word_len = (start >= 0 && start <= word_size) ?
+            hnj_hyphen_strnlen(word + start, word_size - start, utf8) : 0;
+        if (rh && (word_len +
           hnj_hyphen_strnlen(rh + 1, strlen(rh + 1), utf8)) < rhmin) {
             free((*rep)[j]);
             (*rep)[j] = NULL;
@@ -918,16 +924,18 @@ int hnj_hyphen_hyph_(HyphenDict *dict, const char *word, int word_size,
                 matchrepl[isrepl] = NULL;
                 matchindex[isrepl] = -1;
             }
-            matchlen[offset + replindex] = replcut;
+            if (offset + replindex >= 0)
+                matchlen[offset + replindex] = replcut;
           }
 	  /* This is a linear search because I tried a binary search and
 	     found it to be just a teeny bit slower. */
-	  for (k = 0; match[k]; k++) {
+	  for (k = (offset < 0 ? -offset : 0); match[k]; k++) {
 	    if ((hyphens[offset + k] < match[k])) {
 	      hyphens[offset + k] = match[k];
               if (match[k]&1) {
                 matchrepl[offset + k] = repl;
-                if (repl && (k >= replindex) && (k <= replindex + replcut)) {
+                if (repl && (k >= replindex) && (k <= replindex + replcut)
+                    && offset + replindex >= 0) {
                     matchindex[offset + replindex] = offset + k;
                 }
               }
@@ -1171,7 +1179,7 @@ int hnj_hyphen_hyphenate2 (HyphenDict *dict,
     char * nh = dict->nohyphen;
     int nhi;
     for (nhi = 0; nhi <= dict->nohyphenl; nhi++) {
-        char * nhy = (char *) strstr(word, nh);
+        char * nhy = *nh ? (char *) strstr(word, nh) : NULL;
         while (nhy) {
             hyphens[nhy - word + strlen(nh) - 1] = '0';
             if (nhy - word  - 1 >= 0) hyphens[nhy - word - 1] = '0';
@@ -1212,7 +1220,7 @@ int hnj_hyphen_hyphenate3 (HyphenDict *dict,
     char * nh = dict->nohyphen;
     int nhi;
     for (nhi = 0; nhi <= dict->nohyphenl; nhi++) {
-        char * nhy = (char *) strstr(word, nh);
+        char * nhy = *nh ? (char *) strstr(word, nh) : NULL;
         while (nhy) {
             hyphens[nhy - word + strlen(nh) - 1] = 0;
             if (nhy - word  - 1 >= 0) hyphens[nhy - word - 1] = 0;

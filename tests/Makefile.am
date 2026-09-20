@@ -26,7 +26,11 @@ lhmin.test \
 rhmin.test \
 lig.test \
 hyphen.test \
-num.test
+num.test \
+boundary.test \
+nohyphen2.test \
+nohyphen3.test \
+rhmin2.test
 
 distclean-local:
 	-rm -rf testSubDir
@@ -143,4 +147,20 @@ hyphen.word \
 num.hyph \
 num.pat \
 num.test \
-num.word
+num.word \
+boundary.hyph \
+boundary.pat \
+boundary.test \
+boundary.word \
+nohyphen2.hyph \
+nohyphen2.pat \
+nohyphen2.test \
+nohyphen2.word \
+nohyphen3.hyph \
+nohyphen3.pat \
+nohyphen3.test \
+nohyphen3.word \
+rhmin2.hyph \
+rhmin2.pat \
+rhmin2.test \
+rhmin2.word
