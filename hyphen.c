@@ -924,7 +924,7 @@ int hnj_hyphen_hyph_(HyphenDict *dict, const char *word, int word_size,
                 matchrepl[isrepl] = NULL;
                 matchindex[isrepl] = -1;
             }
-            if (offset + replindex >= 0)
+            if (offset + replindex >= 0 && offset + replindex < word_size + 3)
                 matchlen[offset + replindex] = replcut;
           }
 	  /* This is a linear search because I tried a binary search and
@@ -975,7 +975,7 @@ int hnj_hyphen_hyph_(HyphenDict *dict, const char *word, int word_size,
              nHyphCount++;
        j = 0;
        for (i = 0; i < word_size; i++) {
-           if (isrepl && (matchindex[i] >= 0) && matchrepl[matchindex[i]]) { 
+           if (isrepl && (matchindex[i] >= 1) && (matchindex[i] <= word_size) && matchrepl[matchindex[i]]) {
                 if (rep && pos && cut) {
                     if (!*rep)
                         *rep = (char **) calloc(word_size, sizeof(char *));
@@ -1023,10 +1023,16 @@ int hnj_hyphen_hyph_(HyphenDict *dict, const char *word, int word_size,
                 prep_word[prep_word_size - 1] = '\0';
                 if (l) {
                     hyph = (l - (*rep)[i]) - (*pos)[i];
-                    prep_word[2 + i + hyph] = '\0';
+                    if (2 + i + hyph < prep_word_size)
+                        prep_word[2 + i + hyph] = '\0';
                 }
             }
-            hnj_hyphen_hyph_(dict, prep_word + begin + 1, i - begin + 1 + hyph,
+            int sub_size = i - begin + 1 + hyph;
+            if (sub_size >= word_size) sub_size = word_size - 1;
+            if ((size_t)sub_size + begin + 1 > prep_word_size)
+                sub_size = (int)(prep_word_size - begin - 1);
+            if (sub_size < 1) sub_size = 1;
+            hnj_hyphen_hyph_(dict, prep_word + begin + 1, sub_size,
                 hyphens2, &rep2, &pos2, &cut2, clhmin,
                 crhmin, (begin > 0 ? 0 : lend), (hyphens[i]&1 ? 0 : rend));
             for (j = 0; j < i - begin; j++) {
