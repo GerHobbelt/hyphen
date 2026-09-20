@@ -977,7 +977,7 @@ int hnj_hyphen_hyph_(HyphenDict *dict, const char *word, int word_size,
              nHyphCount++;
        j = 0;
        for (i = 0; i < word_size; i++) {
-           if (isrepl && (matchindex[i] >= 1) && (matchindex[i] <= word_size) && matchrepl[matchindex[i]]) {
+           if (isrepl && matchlen[i] >= 1 && matchindex[i] >= 1 && matchindex[i] <= word_size && matchrepl[matchindex[i]]) {
                 if (rep && pos && cut) {
                     if (!*rep)
                         *rep = (char **) calloc(word_size, sizeof(char *));
@@ -986,6 +986,7 @@ int hnj_hyphen_hyph_(HyphenDict *dict, const char *word, int word_size,
                     if (!*cut) {
                         *cut = (int *) calloc(word_size, sizeof(int));
                     }
+                    hnj_free((*rep)[matchindex[i] - 1]);
                     (*rep)[matchindex[i] - 1] = hnj_strdup(matchrepl[matchindex[i]]);
                     (*pos)[matchindex[i] - 1] = matchindex[i] - i;
                     (*cut)[matchindex[i] - 1] = matchlen[i];
@@ -1051,9 +1052,11 @@ int hnj_hyphen_hyph_(HyphenDict *dict, const char *word, int word_size,
                             (*cut)[k] = 0;
                         }
                     }
+                    hnj_free((*rep)[begin + j]);
                     (*rep)[begin + j] = rep2[j];
                     (*pos)[begin + j] = pos2[j];
                     (*cut)[begin + j] = cut2[j];
+                    rep2[j] = NULL;
                 }
             }
             prep_word[i + 2] = word[i + 1];
@@ -1064,7 +1067,10 @@ int hnj_hyphen_hyph_(HyphenDict *dict, const char *word, int word_size,
             }
         }
         begin = i + 1;
-        for (j = 0; j < word_size; j++) rep2[j] = NULL;
+        for (j = 0; j < word_size; j++) {
+            hnj_free(rep2[j]);
+            rep2[j] = NULL;
+        }
      }
      
      /* non-compound */
@@ -1114,8 +1120,9 @@ int hnj_hyphen_norm(const char *word, int word_size, char * hyphens,
         for (; k < l && k < word_size; k++) {
             if ((((unsigned char) word[k]) >> 6) != 2) (*cut)[j]++;
         }
-        (*rep)[j] = (*rep)[i];
-        if (j < i) {
+        if (j != i) {
+            hnj_free((*rep)[j]);
+            (*rep)[j] = (*rep)[i];
             (*rep)[i] = NULL;
             (*pos)[i] = 0;
             (*cut)[i] = 0;
